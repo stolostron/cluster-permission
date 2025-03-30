@@ -2,7 +2,7 @@ module open-cluster-management.io/cluster-permission
 
 go 1.23.0
 
-toolchain go1.23.7
+toolchain go1.24.1
 
 require (
 	github.com/onsi/ginkgo/v2 v2.19.0
