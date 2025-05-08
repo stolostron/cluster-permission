@@ -8,9 +8,6 @@ RUN rm -fr vendor && \
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
-RUN microdnf update -y && \
-     microdnf clean all
-
 ENV OPERATOR=/usr/local/bin/cluster-permission \
     USER_UID=1001 \
     USER_NAME=cluster-permission
