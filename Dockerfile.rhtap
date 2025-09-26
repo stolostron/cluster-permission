@@ -16,6 +16,7 @@ ENV OPERATOR=/usr/local/bin/cluster-permission \
     USER_NAME=cluster-permission
 
 LABEL \
+      url="https://github.com/stolostron/cluster-permission" \
     name="cluster-permission" \
     com.redhat.component="cluster-permission" \
     description="Cluster permission controller" \
