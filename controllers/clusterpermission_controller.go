@@ -698,6 +698,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	if validateCP {
 		roleRefs = extractRoleReferencesForValidation(clusterPermission)
+		roleRefs = filterOutCreatedRoles(roleRefs, clusterRole, roles)
 	}
 
 	return clusterRole, clusterRoleBindings, roles, roleBindings, roleRefs, nil

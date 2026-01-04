@@ -105,6 +105,33 @@ func extractRoleReferencesForValidation(clusterPermission *cpv1alpha1.ClusterPer
 	return roleRefs
 }
 
+// filterOutCreatedRoles removes roles that are being created by the ClusterPermission itself from the validation list
+func filterOutCreatedRoles(roleRefs []ValidationRoleRef, clusterRole *rbacv1.ClusterRole, roles []rbacv1.Role) []ValidationRoleRef {
+	createdRoles := make(map[string]bool)
+
+	if clusterRole != nil {
+		createdRoles["ClusterRole:"+clusterRole.Name] = true
+	}
+
+	for _, role := range roles {
+		createdRoles["Role:"+role.Namespace+":"+role.Name] = true
+	}
+
+	var filteredRefs []ValidationRoleRef
+	for _, ref := range roleRefs {
+		key := ref.Kind + ":"
+		if ref.Kind == "Role" {
+			key += ref.Namespace + ":"
+		}
+		key += ref.Name
+
+		if !createdRoles[key] {
+			filteredRefs = append(filteredRefs, ref)
+		}
+	}
+	return filteredRefs
+}
+
 // buildManifestWork wraps the payloads in a ManifestWork
 func buildManifestWork(clusterPermission cpv1alpha1.ClusterPermission, manifestWorkName string,
 	clusterRole *rbacv1.ClusterRole,

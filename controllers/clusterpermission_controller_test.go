@@ -437,6 +437,46 @@ var _ = Describe("ClusterPermission controller", func() {
 				}
 				return true
 			}).Should(BeTrue())
+
+			By("Creating the ClusterPermission with embedded ClusterRole and Validation enabled")
+			clusterPermissionEmbeddedValidation := cpv1alpha1.ClusterPermission{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "cp-embedded-validation",
+					Namespace: clusterName,
+				},
+				Spec: cpv1alpha1.ClusterPermissionSpec{
+					Validate: &[]bool{true}[0],
+					ClusterRole: &cpv1alpha1.ClusterRole{
+						Rules: []rbacv1.PolicyRule{{
+							APIGroups: []string{""},
+							Resources: []string{"pods"},
+							Verbs:     []string{"get"},
+						}},
+					},
+					ClusterRoleBinding: &cpv1alpha1.ClusterRoleBinding{
+						Subject: &rbacv1.Subject{
+							Kind:      "ServiceAccount",
+							Name:      "default",
+							Namespace: "default",
+						},
+					},
+				},
+			}
+			Expect(k8sClient.Create(ctx, &clusterPermissionEmbeddedValidation)).Should(Succeed())
+			mwKeyEmbeddedValidation := types.NamespacedName{Name: generateManifestWorkName(clusterPermissionEmbeddedValidation), Namespace: clusterName}
+			mwEmbeddedValidation := workv1.ManifestWork{}
+			Eventually(func() bool {
+				if err := k8sClient.Get(ctx, mwKeyEmbeddedValidation, &mwEmbeddedValidation); err != nil {
+					return false
+				}
+				// Check ManifestConfigs: Should NOT contain config for the embedded ClusterRole (cp-embedded-validation)
+				for _, cfg := range mwEmbeddedValidation.Spec.ManifestConfigs {
+					if cfg.ResourceIdentifier.Resource == "clusterroles" && cfg.ResourceIdentifier.Name == "cp-embedded-validation" {
+						return false // Fail: Found unexpected validation config for embedded resource
+					}
+				}
+				return true
+			}).Should(BeTrue())
 		})
 	})
 
