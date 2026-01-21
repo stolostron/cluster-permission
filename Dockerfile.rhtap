@@ -16,7 +16,7 @@ ENV OPERATOR=/usr/local/bin/cluster-permission \
     USER_NAME=cluster-permission
 
 LABEL \
-    name="cluster-permission" \
+    name="rhacm2/acm-cluster-permission-rhel9" \
     com.redhat.component="cluster-permission" \
     description="Cluster permission controller" \
     maintainer="acm-contact@redhat.com" \
@@ -25,7 +25,8 @@ LABEL \
     org.label-schema.schema-version="1.0" \
     summary="Cluster permission controller" \
     io.k8s.display-name="Cluster permission" \
-    io.openshift.tags="mce acm cluster-permission"
+    io.openshift.tags="mce acm cluster-permission" \
+    cpe="cpe:/a:redhat:acm:2.15::el9"
 
 # install operator binary
 COPY --from=plugin-builder /go/src/github.com/open-cluster-management-io/cluster-permission/bin/cluster-permission /usr/local/bin/cluster-permission
