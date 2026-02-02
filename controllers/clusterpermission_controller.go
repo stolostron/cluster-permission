@@ -191,8 +191,8 @@ func (r *ClusterPermissionReconciler) reconcileClusterPermission(ctx context.Con
 // Reconcile validates the ClusterPermission spec and applies a ManifestWork with the RBAC resources in it's payload
 func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
-	log.Info("reconciling ClusterPermission...")
-	defer log.Info("done reconciling ClusterPermission")
+	log.Info("reconciling ClusterPermission...", "name", req.Name, "namespace", req.Namespace)
+	defer log.Info("done reconciling ClusterPermission", "name", req.Name, "namespace", req.Namespace)
 
 	var clusterPermission cpv1alpha1.ClusterPermission
 	if err := r.Get(ctx, req.NamespacedName, &clusterPermission); err != nil {
