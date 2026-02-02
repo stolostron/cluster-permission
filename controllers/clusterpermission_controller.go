@@ -230,6 +230,9 @@ func (r *ClusterPermissionReconciler) generateSubject(ctx context.Context,
 // generateManifestWorkPayload creates the payload for the ManifestWork based on the ClusterPermission spec
 func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Context, clusterPermission *cpv1alpha1.ClusterPermission) (
 	*rbacv1.ClusterRole, *rbacv1.ClusterRoleBinding, []rbacv1.Role, []rbacv1.RoleBinding, error) {
+	log := log.FromContext(ctx)
+	log.Info("generating ManifestWork payload", "clusterPermission", clusterPermission.Name, "namespace", clusterPermission.Namespace)
+
 	var clusterRole *rbacv1.ClusterRole
 	var clusterRoleBinding *rbacv1.ClusterRoleBinding
 	var roles []rbacv1.Role
@@ -237,6 +240,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	// ClusterRole payload
 	if clusterPermission.Spec.ClusterRole != nil {
+		log.Info("processing ClusterRole spec", "rulesCount", len(clusterPermission.Spec.ClusterRole.Rules))
 		clusterRole = &rbacv1.ClusterRole{
 			TypeMeta: metav1.TypeMeta{
 				APIVersion: rbacv1.SchemeGroupVersion.String(),
@@ -251,6 +255,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	// ClusterRoleBinding payload
 	if clusterPermission.Spec.ClusterRoleBinding != nil {
+		log.Info("processing ClusterRoleBinding spec", "subject", clusterPermission.Spec.ClusterRoleBinding.Subject.Name)
 		if err := r.validateSubject(ctx, clusterPermission.Spec.ClusterRoleBinding.Subject, clusterPermission.Namespace); err != nil {
 			return nil, nil, nil, nil, err
 		}
@@ -279,6 +284,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	// Roles payload
 	if clusterPermission.Spec.Roles != nil && len(*clusterPermission.Spec.Roles) > 0 {
+		log.Info("processing Roles spec", "rolesCount", len(*clusterPermission.Spec.Roles))
 		for _, role := range *clusterPermission.Spec.Roles {
 			if role.Namespace == "" && role.NamespaceSelector == nil {
 				return nil, nil, nil, nil,
@@ -336,6 +342,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	// RoleBindings payload
 	if clusterPermission.Spec.RoleBindings != nil && len(*clusterPermission.Spec.RoleBindings) > 0 {
+		log.Info("processing RoleBindings spec", "roleBindingsCount", len(*clusterPermission.Spec.RoleBindings))
 		for _, roleBinding := range *clusterPermission.Spec.RoleBindings {
 			if roleBinding.Namespace == "" && roleBinding.NamespaceSelector == nil {
 				return nil, nil, nil, nil,
@@ -418,5 +425,6 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 		}
 	}
 
+	log.Info("ManifestWork payload generation completed", "hasClusterRole", clusterRole != nil, "hasClusterRoleBinding", clusterRoleBinding != nil, "rolesCount", len(roles), "roleBindingsCount", len(roleBindings))
 	return clusterRole, clusterRoleBinding, roles, roleBindings, nil
 }
