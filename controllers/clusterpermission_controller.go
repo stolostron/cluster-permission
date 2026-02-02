@@ -187,7 +187,11 @@ func (r *ClusterPermissionReconciler) updateStatus(ctx context.Context,
 // if it's a ManagedServiceAccount then verify that the CR exists
 func (r *ClusterPermissionReconciler) validateSubject(ctx context.Context,
 	subject rbacv1.Subject, clusterNamespace string) error {
+	log := log.FromContext(ctx)
+	log.Info("validating subject", "apiGroup", subject.APIGroup, "kind", subject.Kind, "name", subject.Name)
+
 	if subject.APIGroup == msav1beta1.GroupVersion.Group && subject.Kind == "ManagedServiceAccount" {
+		log.Info("subject is ManagedServiceAccount, verifying CR exists", "namespace", clusterNamespace, "name", subject.Name)
 		var msa msav1beta1.ManagedServiceAccount
 		return r.Get(ctx, types.NamespacedName{
 			Namespace: clusterNamespace,
@@ -195,6 +199,7 @@ func (r *ClusterPermissionReconciler) validateSubject(ctx context.Context,
 		}, &msa)
 	}
 
+	log.Info("subject validation passed")
 	return nil
 }
 
@@ -203,6 +208,9 @@ func (r *ClusterPermissionReconciler) validateSubject(ctx context.Context,
 // othwerise, return the same subject as before
 func (r *ClusterPermissionReconciler) generateSubject(ctx context.Context,
 	subject rbacv1.Subject, clusterNamespace string) (rbacv1.Subject, error) {
+	log := log.FromContext(ctx)
+	log.Info("generating subject", "apiGroup", subject.APIGroup, "kind", subject.Kind, "name", subject.Name)
+
 	if subject.APIGroup == msav1beta1.GroupVersion.Group && subject.Kind == "ManagedServiceAccount" {
 		// check the ManagedServiceAccount is installed and
 		// determine the namespace of the ServiceAccount on the managed cluster
@@ -216,6 +224,7 @@ func (r *ClusterPermissionReconciler) generateSubject(ctx context.Context,
 			ns = addon.Spec.InstallNamespace
 		}
 
+		log.Info("generated ServiceAccount subject for ManagedServiceAccount", "namespace", ns, "name", subject.Name)
 		return rbacv1.Subject{
 			APIGroup:  corev1.GroupName,
 			Kind:      "ServiceAccount",
@@ -224,12 +233,16 @@ func (r *ClusterPermissionReconciler) generateSubject(ctx context.Context,
 		}, nil
 	}
 
+	log.Info("returning original subject unchanged")
 	return subject, nil
 }
 
 // generateManifestWorkPayload creates the payload for the ManifestWork based on the ClusterPermission spec
 func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Context, clusterPermission *cpv1alpha1.ClusterPermission) (
 	*rbacv1.ClusterRole, *rbacv1.ClusterRoleBinding, []rbacv1.Role, []rbacv1.RoleBinding, error) {
+	log := log.FromContext(ctx)
+	log.Info("generating ManifestWork payload", "clusterPermission", clusterPermission.Name, "namespace", clusterPermission.Namespace)
+
 	var clusterRole *rbacv1.ClusterRole
 	var clusterRoleBinding *rbacv1.ClusterRoleBinding
 	var roles []rbacv1.Role
@@ -237,6 +250,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	// ClusterRole payload
 	if clusterPermission.Spec.ClusterRole != nil {
+		log.Info("generating ClusterRole payload", "name", clusterPermission.Name, "rulesCount", len(clusterPermission.Spec.ClusterRole.Rules))
 		clusterRole = &rbacv1.ClusterRole{
 			TypeMeta: metav1.TypeMeta{
 				APIVersion: rbacv1.SchemeGroupVersion.String(),
@@ -251,6 +265,7 @@ func (r *ClusterPermissionReconciler) generateManifestWorkPayload(ctx context.Co
 
 	// ClusterRoleBinding payload
 	if clusterPermission.Spec.ClusterRoleBinding != nil {
+		log.Info("generating ClusterRoleBinding payload", "name", clusterPermission.Name)
 		if err := r.validateSubject(ctx, clusterPermission.Spec.ClusterRoleBinding.Subject, clusterPermission.Namespace); err != nil {
 			return nil, nil, nil, nil, err
 		}
