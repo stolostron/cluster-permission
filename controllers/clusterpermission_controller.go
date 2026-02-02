@@ -79,7 +79,7 @@ func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		return ctrl.Result{}, nil
 	}
 
-	log.Info("validating ClusterPermission")
+	log.Info("validating ClusterPermission", "name", clusterPermission.Name, "namespace", clusterPermission.Namespace)
 
 	/* Validations */
 	if clusterPermission.Spec.ClusterRoleBinding == nil && clusterPermission.Spec.RoleBindings == nil {
@@ -115,7 +115,7 @@ func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		return ctrl.Result{}, err
 	}
 
-	log.Info("preparing ManifestWork payload")
+	log.Info("preparing ManifestWork payload", "clusterPermission", clusterPermission.Name)
 
 	clusterRole, clusterRoleBinding, roles, roleBindings, err := r.generateManifestWorkPayload(
 		ctx, &clusterPermission)
@@ -139,14 +139,14 @@ func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	var mw workv1.ManifestWork
 	err = r.Get(ctx, types.NamespacedName{Name: mwName, Namespace: clusterPermission.Namespace}, &mw)
 	if apierrors.IsNotFound(err) {
-		log.Info("creating ManifestWork")
+		log.Info("creating ManifestWork", "manifestWorkName", mwName, "namespace", clusterPermission.Namespace)
 		err = r.Client.Create(ctx, manifestWork)
 		if err != nil {
 			log.Error(err, "unable to create ManifestWork")
 			return ctrl.Result{}, err
 		}
 	} else if err == nil {
-		log.Info("updating ManifestWork")
+		log.Info("updating ManifestWork", "manifestWorkName", mwName, "namespace", clusterPermission.Namespace)
 		mw.Spec = manifestWork.Spec
 		err = r.Client.Update(ctx, &mw)
 		if err != nil {
