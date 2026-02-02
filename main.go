@@ -118,6 +118,8 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	setupLog.Info("Starting cluster-permission controller")
+
 	setupLog.Info("Leader election settings",
 		"leaseDuration", options.LeaderElectionLeaseDuration,
 		"renewDeadline", options.LeaderElectionRenewDeadline,
