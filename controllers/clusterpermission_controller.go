@@ -191,8 +191,8 @@ func (r *ClusterPermissionReconciler) reconcileClusterPermission(ctx context.Con
 // Reconcile validates the ClusterPermission spec and applies a ManifestWork with the RBAC resources in it's payload
 func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
-	log.Info("reconciling ClusterPermission...")
-	defer log.Info("done reconciling ClusterPermission")
+	log.Info("reconciling ClusterPermission...", "name", req.Name, "namespace", req.Namespace)
+	defer log.Info("done reconciling ClusterPermission", "name", req.Name, "namespace", req.Namespace)
 
 	var clusterPermission cpv1alpha1.ClusterPermission
 	err := r.Get(ctx, req.NamespacedName, &clusterPermission)
@@ -258,12 +258,12 @@ func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		validateCP = true
 	}
 
-	log.Info("preparing ManifestWork payload")
+	log.Info("preparing ManifestWork payload", "clusterPermission", clusterPermission.Name, "validation", validateCP)
 
 	clusterRole, clusterRoleBindings, roles, roleBindings, roleRefs, err := r.generateManifestWorkPayload(
 		ctx, &clusterPermission, validateCP)
 	if err != nil {
-		log.Error(err, "failed to generate payload")
+		log.Error(err, "failed to generate payload", "clusterPermission", clusterPermission.Name)
 
 		errStatus := r.updateStatus(ctx, &clusterPermission, []*metav1.Condition{
 			{
@@ -278,13 +278,14 @@ func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	}
 
 	mwName := generateManifestWorkName(clusterPermission)
+	log.Info("generated ManifestWork name", "manifestWorkName", mwName, "clusterRoleBindingsCount", len(clusterRoleBindings), "rolesCount", len(roles), "roleBindingsCount", len(roleBindings))
 	manifestWork := buildManifestWork(clusterPermission, mwName,
 		clusterRole, clusterRoleBindings, roles, roleBindings, roleRefs, validateCP)
 
 	var mw workv1.ManifestWork
 	err = r.Get(ctx, types.NamespacedName{Name: mwName, Namespace: clusterPermission.Namespace}, &mw)
 	if apierrors.IsNotFound(err) {
-		log.Info("creating ManifestWork")
+		log.Info("creating ManifestWork", "manifestWorkName", mwName, "namespace", clusterPermission.Namespace)
 		err = r.Client.Create(ctx, manifestWork)
 		if err != nil {
 			log.Error(err, "unable to create ManifestWork")
@@ -293,15 +294,16 @@ func (r *ClusterPermissionReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	} else if err == nil {
 		// Only update if the spec has actually changed
 		if !equality.Semantic.DeepEqual(mw.Spec, manifestWork.Spec) {
-			log.Info("updating ManifestWork - spec has changed")
+			log.Info("updating ManifestWork - spec has changed", "manifestWorkName", mwName, "namespace", clusterPermission.Namespace)
 			mw.Spec = manifestWork.Spec
 			err = r.Client.Update(ctx, &mw)
 			if err != nil {
-				log.Error(err, "unable to update ManifestWork")
+				log.Error(err, "unable to update ManifestWork", "manifestWorkName", mwName)
 				return ctrl.Result{}, err
 			}
+			log.Info("ManifestWork updated successfully", "manifestWorkName", mwName)
 		} else {
-			log.Info("ManifestWork spec unchanged, skipping update")
+			log.Info("ManifestWork spec unchanged, skipping update", "manifestWorkName", mwName)
 		}
 	} else {
 		log.Error(err, "unable to fetch ManifestWork")
