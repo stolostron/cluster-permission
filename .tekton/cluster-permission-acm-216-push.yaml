@@ -41,6 +41,12 @@ spec:
     value: "true"
   - name: build-source-image
     value: "true"
+  - name: send-slack-notification
+    value: 'true'
+  - name: konflux-application-name
+    value: release-acm-216
+  - name: slack-member-id
+    value: UUSRGGQ1L
   pipelineRef:
     resolver: git
     params:
