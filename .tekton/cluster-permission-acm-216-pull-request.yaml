@@ -8,9 +8,8 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "release-2.16"
-  creationTimestamp: null
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "release-2.16"
+  creationTimestamp:
   labels:
     appstudio.openshift.io/application: release-acm-216
     appstudio.openshift.io/component: cluster-permission-acm-216
@@ -45,12 +44,12 @@ spec:
   pipelineRef:
     resolver: git
     params:
-      - name: url
-        value: "https://github.com/stolostron/konflux-build-catalog.git"
-      - name: revision
-        value: main
-      - name: pathInRepo
-        value: pipelines/common.yaml
+    - name: url
+      value: "https://github.com/stolostron/konflux-build-catalog.git"
+    - name: revision
+      value: main
+    - name: pathInRepo
+      value: pipelines/common.yaml
   taskRunTemplate:
     serviceAccountName: build-pipeline-cluster-permission-acm-216
   workspaces:
