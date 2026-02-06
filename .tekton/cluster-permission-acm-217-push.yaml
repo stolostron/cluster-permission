@@ -39,6 +39,8 @@ spec:
     value: release-acm-217
   - name: slack-member-id
     value: UUSRGGQ1L
+  - name: prefetch-input
+    value: '[{"type": "gomod", "path": "."}, {"type": "rpm", "path": "."}]'
   pipelineRef:
     resolver: git
     params:
