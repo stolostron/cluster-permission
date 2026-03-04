@@ -19,6 +19,9 @@ Dockerfile.cross
 
 !vendor/**/zz_generated.*
 
+# envtest binary cache
+_output/
+
 # editor and IDE paraphernalia
 .idea
 *.swp
