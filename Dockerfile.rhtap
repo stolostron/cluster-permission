@@ -18,7 +18,7 @@ ENV OPERATOR=/usr/local/bin/cluster-permission \
 LABEL \
     name="rhacm2/acm-cluster-permission-rhel9" \
     com.redhat.component="cluster-permission" \
-    cpe="cpe:/a:redhat:acm:2.16::el9" \
+    cpe="cpe:/a:redhat:acm:2.17::el9" \
     description="Cluster permission controller" \
     maintainer="acm-contact@redhat.com" \
     io.k8s.description="Cluster permission controller" \
