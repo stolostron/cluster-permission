@@ -1,9 +1,13 @@
 approvers:
-- elgnay
-
-emeritus_approvers:
-- lennysgarage
-- fxiang1
+- dhaiducek
+- jnpacker
 - mikeshng
-- philipwu08
-- xiangjingli
+- rokej
+- tesshuflower
+
+reviewers:
+- dhaiducek
+- jnpacker
+- mikeshng
+- rokej
+- tesshuflower
