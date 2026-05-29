@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 1
           path: go/src/github.com/open-cluster-management/cluster-permission
       - name: install Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: pre-build
@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 1
           path: go/src/github.com/open-cluster-management/cluster-permission
       - name: install Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: install imagebuilder
@@ -67,7 +67,7 @@ jobs:
           fetch-depth: 1
           path: go/src/github.com/open-cluster-management/cluster-permission
       - name: install Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: test
@@ -106,7 +106,7 @@ jobs:
           fetch-depth: 1
           path: go/src/github.com/open-cluster-management/cluster-permission
       - name: install Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: install imagebuilder
