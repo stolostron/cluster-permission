@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
       - name: install Go
@@ -53,7 +53,7 @@ jobs:
           echo "- See the [CHANGELOG](https://github.com/open-cluster-management-io/cluster-permission/blob/main/CHANGELOG/CHANGELOG-${MAJOR_RELEASE_VERSION}.md) for more details." >> /home/runner/work/changelog.txt
           echo "- The released image is quay.io/open-cluster-management/cluster-permission:$RELEASE_VERSION" >> /home/runner/work/changelog.txt
       - name: publish release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
