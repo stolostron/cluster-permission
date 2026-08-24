@@ -13,7 +13,6 @@ on:
 
 env:
   # Common versions
-  GO_VERSION: '1.25'
   GO_REQUIRED_MIN_VERSION: ''
   GOPATH: '/home/runner/work/cluster-permission/cluster-permission/go'
 defaults:
@@ -33,7 +32,7 @@ jobs:
       - name: install Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
       - name: pre-build
         run: make pre-build
       - name: build
@@ -51,7 +50,7 @@ jobs:
       - name: install Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
       - name: install imagebuilder
         run: go install github.com/openshift/imagebuilder/cmd/imagebuilder@v1.2.3
       - name: images
@@ -69,7 +68,7 @@ jobs:
       - name: install Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
       - name: test
         run: make test
       - name: report-coverage
@@ -108,7 +107,7 @@ jobs:
       - name: install Go
         uses: actions/setup-go@v6
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: go.mod
       - name: install imagebuilder
         run: go install github.com/openshift/imagebuilder/cmd/imagebuilder@v1.2.3
       - name: images
